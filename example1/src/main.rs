@@ -10,13 +10,8 @@ use users::errors::handle_error;
 
 use std::error::Error;
 
-fn main() {
-  let value = env!["NODE_PATH"];
-  println!("{value}");
-}
-
 #[tokio::main]
-async fn main_() -> Result<(), Box<dyn Error>> {
+async fn main() -> Result<(), Box<dyn Error>> {
   // ------ Criando um novo cliente Redis para Users ------
   let mut redis_client = match Users::new(connection_data()) {
     Ok(client) => client,
