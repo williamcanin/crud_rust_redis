@@ -17,7 +17,7 @@ REDIS_PASSWORD=
 REDIS_PORT=
 ````
 
-> Note: Fill in according to your bank details.
+> Note: Fill in according to the data in your database.
 
 3 - Run the test to verify the connection:
 
