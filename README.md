@@ -26,4 +26,4 @@ cargo test tests::database::connection
 ````
 
 ---
-[LICENSE](https://github.com/williamcanin/crud_rust_redis)
+[LICENSE](https://github.com/williamcanin/crud_rust_redis/blob/main/LICENSE)
