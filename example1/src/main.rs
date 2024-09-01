@@ -1,3 +1,6 @@
+//
+// Recomenta-se usar o https://upstash.com para servidor remoto com Redis.
+//
 mod database;
 mod options;
 mod tests;
