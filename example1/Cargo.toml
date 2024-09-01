@@ -1,0 +1,25 @@
+# Author: William C. Canin <https://williamcanin.github.io>
+
+[package]
+name = "example1"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+dotenv = "0.15.0"
+redis = { version = "0.26.1", features = ["tls"] }
+tokio = { version = "1.40.0", features = ["full"] }
+
+[dev-dependencies]
+
+# ==== PROFILES SETTINGS ====
+
+[profile.dev.package."*"]
+opt-level = 0
+incremental = true
+
+[profile.release]
+opt-level = 3
+codegen-units = 1
+debug = false
+strip = true
