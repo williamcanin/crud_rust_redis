@@ -9,10 +9,23 @@ pub struct Users {
   conn: Database,
 }
 
+fn fields(user: &User) -> Vec<(&str, String)> {
+  // Cria um vetor de tuplas, preservando a ordem dos campos do struct User
+  vec![
+    ("name", user.name.to_string()),
+    ("email", user.email.to_string()),
+    ("country", user.country.to_string()),
+    ("site", user.site.to_string()),
+    ("graduation", user.graduation.to_string()),
+  ]
+}
+
 impl Users {
   // Cria um novo RedisClient usando a conexão fornecida
   pub fn new(data: ConnectionData) -> Result<Self, Box<dyn std::error::Error>> {
+    // Realiza a conexão com o banco de dados
     let conn = Database::connection(data)?;
+    // Retorna a conexão
     Ok(Self { conn })
   }
 
@@ -26,19 +39,11 @@ impl Users {
 
   // Método para adicionar um usuário ao Redis
   pub fn add(&mut self, user: &User) -> RedisResult<String> {
+    // Gera ID para o usuário adicionado
     let user_id = self.generate_id("user")?;
 
-    // Converte o campo booleano graduation para string
-    let graduation = user.graduation.to_string();
-
-    // Cria um vetor de tuplas, preservando a ordem dos campos do struct User
-    let user_fields = vec![
-      ("name", &user.name),
-      ("email", &user.email),
-      ("country", &user.country),
-      ("site", &user.site),
-      ("graduation", &graduation),
-    ];
+    // Resgata os campos dos dados
+    let user_fields = fields(user);
 
     // Usa redis::cmd para executar o HMSET com os campos na ordem correta
     let _: () = redis::cmd("HMSET")
@@ -58,8 +63,10 @@ impl Users {
     // Definir os campos esperados e garantir que estão presentes
     let fields = vec!["name", "email", "country", "graduation"];
 
+    // Cria um HashMap<String, String> vazio
     let mut values: HashMap<String, String> = HashMap::new();
 
+    // Percorre os campos e insere no HashMap<String, String>
     for field in &fields {
       let value: String = redis::cmd("HGET").arg(user_id).arg(field).query(con)?;
       values.insert(field.to_string(), value);
@@ -72,31 +79,26 @@ impl Users {
   // Método para deletar um valor do Redis
   #[allow(dead_code)]
   pub fn delete(&mut self, key: &str) -> RedisResult<()> {
+    // Estabelece conexão
     let con = self.conn.get_connection()?;
+    // Envia comando ao Redis para deletar
     redis::cmd("DEL").arg(key).query(con)?;
     Ok(())
   }
 
   // Método para atualizar um valor no Redis
   pub fn update(&mut self, user_id: &str, user: &User) -> RedisResult<()> {
+    // Estabelece conexão
     let con = self.conn.get_connection()?;
 
-    // Converte o campo booleano graduation para string
-    let graduation = user.graduation.to_string();
-
-    // Cria um vetor de tuplas, preservando a ordem dos campos do struct User
-    let user_fields = vec![
-      ("name", &user.name),
-      ("email", &user.email),
-      ("country", &user.country),
-      ("site", &user.site),
-      ("graduation", &graduation),
-    ];
+    // Resgata os campos dos dados
+    let user_fields = fields(user);
 
     // Passando todos os campos para o comando HMSET
     let mut cmd = redis::cmd("HMSET");
     cmd.arg(user_id);
 
+    // Percorre os campos atribuindo os mesmo para o comando Redis
     for (field, value) in user_fields {
       cmd.arg(field).arg(value);
     }
@@ -108,6 +110,7 @@ impl Users {
 
   // Fecha a conexão Redis
   pub fn close(&mut self) -> RedisResult<()> {
+    // Chama o fechamento da conexão
     self.conn.close()?;
     Ok(())
   }
