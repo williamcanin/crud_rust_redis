@@ -14,7 +14,7 @@ tokio = { version = "1.40.0", features = ["full"] }
 
 # ==== PROFILES SETTINGS ====
 
-[profile.dev.package."*"]
+[profile.dev]
 opt-level = 0
 incremental = true
 
