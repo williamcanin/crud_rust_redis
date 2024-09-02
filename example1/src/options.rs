@@ -10,11 +10,7 @@ pub fn connection_data() -> ConnectionData {
   dotenv().ok();
   ConnectionData {
     production: string_to_bool!(env::var("PRODUCTION").unwrap()),
-    tls: string_to_bool!(env::var("TLS").unwrap()),
     development_url: env::var("DEVELOPMENT_URL").unwrap(),
-    username: env::var("REDIS_USERNAME").unwrap(),
-    hostname: env::var("REDIS_HOSTNAME").unwrap(),
-    password: env::var("REDIS_PASSWORD").unwrap(),
-    port: env::var("REDIS_PORT").unwrap(),
+    production_url: env::var("PRODUCTION_URL").unwrap(),
   }
 }

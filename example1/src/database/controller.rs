@@ -8,28 +8,20 @@ pub struct Database {
 impl Database {
   /// Método para realizar a conexão com Redis.
   pub fn connection(data: ConnectionData) -> RedisResult<Self> {
-    let uri_schema = match data.tls {
-      true => match data.production {
-        true => "rediss",
-        false => "redis",
-      },
-      false => "redis",
-    };
     let url = match data.production {
-      true => format!(
-        "{}://{}:{}@{}:{}/",
-        uri_schema, data.username, data.password, data.hostname, data.port
-      ),
+      true => data.production_url,
       false => data.development_url,
     };
 
     let client = redis::Client::open(url)?;
-    let mut con = client.get_connection()?;
+    let con = client.get_connection()?;
 
-    // Autenticação
-    if data.production {
-      let _: () = redis::cmd("AUTH").arg(data.password).query(&mut con)?;
-    }
+    // // Autenticação::DEPRECATED
+    // if data.production {
+    //   use crate::utils::catch::url_password;
+    //   let password = url_password(&data.production_url);
+    //   let _: () = redis::cmd("AUTH").arg(password).query(&mut con)?;
+    // }
 
     Ok(Self { conn: Some(con) })
   }
