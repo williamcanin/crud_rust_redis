@@ -1,7 +1,6 @@
 #[cfg(test)]
 mod database {
-  use crate::database::Database;
-  use crate::options::connection_data;
+  use crate::{database::controller::Database, options::connection_data};
   use std::env;
 
   #[tokio::test]

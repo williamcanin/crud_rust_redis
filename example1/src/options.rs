@@ -1,4 +1,4 @@
-use crate::users::models::ConnectionData;
+use crate::database::models::ConnectionData;
 use dotenv::dotenv;
 use std::env;
 
