@@ -1,5 +1,6 @@
 use super::models::ConnectionData;
 use redis::{Connection, RedisError, RedisResult};
+
 pub struct Database {
   conn: Option<Connection>,
 }
