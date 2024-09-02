@@ -11,14 +11,13 @@ pub fn connection_data() -> ConnectionData {
   dotenv().ok();
   // Set as variáveis do arquivo .env
   ConnectionData {
-    development: false,
+    development: true,
     username: env::var("REDIS_USERNAME").unwrap(),
     hostname: env::var("REDIS_HOSTNAME").unwrap(),
     password: env::var("REDIS_PASSWORD").unwrap(),
     port: env::var("REDIS_PORT").unwrap(),
   }
 }
-
 
 // Define se a conexão será em modo TLS ou não.
 // Nota: Se o "development: true" O TLS será desabilitado automaticamente, ou seja,

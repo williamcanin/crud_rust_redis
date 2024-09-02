@@ -1,8 +1,11 @@
-#[derive(Debug)]
+use serde::Serialize;
+#[derive(Debug, Serialize)]
 pub struct User {
   pub name: String,
   pub email: String,
   pub country: String,
+  pub site: String,
+  pub graduation: bool,
 }
 
 pub struct ConnectionData {

@@ -1,43 +1,14 @@
 use crate::database::Database;
-// use crate::options::{DEVELOPMENT_URL, TLS};
 use crate::users::models::User;
 use redis::RedisResult;
+use std::collections::HashMap;
 
 use super::models::ConnectionData;
 pub struct Users {
   conn: Database,
 }
 
-// TODO: Fazer um módulo apenas para conexão.
 impl Users {
-  // /// Método para realizar a conexão com Redis.
-  // pub fn new(data: ConnectionData) -> RedisResult<Self> {
-  //   let uri_schema = match TLS {
-  //     true => match data.development {
-  //       true => "redis",
-  //       false => "rediss",
-  //     },
-  //     false => "redis",
-  //   };
-  //   let url = match data.development {
-  //     true => DEVELOPMENT_URL.to_string(),
-  //     false => format!(
-  //       "{}://{}:{}@{}:{}/",
-  //       uri_schema, data.username, data.password, data.hostname, data.port
-  //     ),
-  //   };
-
-  //   let client = redis::Client::open(url)?;
-  //   let mut con = client.get_connection()?;
-
-  //   // Autenticação
-  //   if !data.development {
-  //     let _: () = redis::cmd("AUTH").arg(data.password).query(&mut con)?;
-  //   }
-
-  //   Ok(Self { con: Some(con) })
-  // }
-
   // Cria um novo RedisClient usando a conexão fornecida
   pub fn new(data: ConnectionData) -> Result<Self, Box<dyn std::error::Error>> {
     let conn = Database::connection(data)?;
@@ -55,34 +26,46 @@ impl Users {
   // Método para adicionar um usuário ao Redis
   pub fn add(&mut self, user: &User) -> RedisResult<String> {
     let user_id = self.generate_id("user")?;
+
+    // Converte o campo booleano graduation para string
+    let graduation = user.graduation.to_string();
+
+    // Cria um vetor de tuplas, preservando a ordem dos campos do struct User
+    let user_fields = vec![
+      ("name", &user.name),
+      ("email", &user.email),
+      ("country", &user.country),
+      ("site", &user.site),
+      ("graduation", &graduation),
+    ];
+
+    // Usa redis::cmd para executar o HMSET com os campos na ordem correta
     let _: () = redis::cmd("HMSET")
       .arg(&user_id)
-      .arg("name")
-      .arg(&user.name)
-      .arg("email")
-      .arg(&user.email)
-      .arg("country")
-      .arg(&user.country)
+      .arg(user_fields)
       .query(self.conn.get_connection()?)?;
 
     Ok(user_id)
   }
 
   // Método para pegar o usuário no Redis por ID
-  pub fn get(&mut self, user_id: &str) -> RedisResult<User> {
+  pub fn get(&mut self, user_id: &str) -> RedisResult<HashMap<String, String>> {
+    use std::collections::HashMap;
     // Garantir que a conexão está ativa
     let con = self.conn.get_connection()?;
-    // Recuperar os dados do Redis
-    let name: String = redis::cmd("HGET").arg(user_id).arg("name").query(con)?;
-    let email: String = redis::cmd("HGET").arg(user_id).arg("email").query(con)?;
-    let country: String = redis::cmd("HGET").arg(user_id).arg("country").query(con)?;
+
+    // Definir os campos esperados e garantir que estão presentes
+    let fields = vec!["name", "email", "country", "graduation"];
+
+    let mut values: HashMap<String, String> = HashMap::new();
+
+    for field in &fields {
+      let value: String = redis::cmd("HGET").arg(user_id).arg(field).query(con)?;
+      values.insert(field.to_string(), value);
+    }
 
     // Retornar o usuário com os dados recuperados
-    Ok(User {
-      name,
-      email,
-      country,
-    })
+    Ok(values)
   }
 
   // Método para deletar um valor do Redis
@@ -96,15 +79,29 @@ impl Users {
   // Método para atualizar um valor no Redis
   pub fn update(&mut self, user_id: &str, user: &User) -> RedisResult<()> {
     let con = self.conn.get_connection()?;
-    let _: () = redis::cmd("HMSET")
-      .arg(user_id)
-      .arg("name")
-      .arg(&user.name)
-      .arg("email")
-      .arg(&user.email)
-      .arg("country")
-      .arg(&user.country)
-      .query(con)?;
+
+    // Converte o campo booleano graduation para string
+    let graduation = user.graduation.to_string();
+
+    // Cria um vetor de tuplas, preservando a ordem dos campos do struct User
+    let user_fields = vec![
+      ("name", &user.name),
+      ("email", &user.email),
+      ("country", &user.country),
+      ("site", &user.site),
+      ("graduation", &graduation),
+    ];
+
+    // Passando todos os campos para o comando HMSET
+    let mut cmd = redis::cmd("HMSET");
+    cmd.arg(user_id);
+
+    for (field, value) in user_fields {
+      cmd.arg(field).arg(value);
+    }
+
+    cmd.query(con)?;
+
     Ok(())
   }
 
