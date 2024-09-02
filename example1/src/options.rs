@@ -11,7 +11,7 @@ pub fn connection_data() -> ConnectionData {
   dotenv().ok();
   // Set as variáveis do arquivo .env
   ConnectionData {
-    development: true,
+    development: false,
     username: env::var("REDIS_USERNAME").unwrap(),
     hostname: env::var("REDIS_HOSTNAME").unwrap(),
     password: env::var("REDIS_PASSWORD").unwrap(),
