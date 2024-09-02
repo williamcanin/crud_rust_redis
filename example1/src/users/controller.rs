@@ -1,9 +1,9 @@
+use super::models::ConnectionData;
 use crate::database::Database;
 use crate::users::models::User;
 use redis::RedisResult;
 use std::collections::HashMap;
 
-use super::models::ConnectionData;
 pub struct Users {
   conn: Database,
 }
