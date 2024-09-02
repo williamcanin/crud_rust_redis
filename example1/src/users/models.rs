@@ -1,5 +1,4 @@
-use serde::Serialize;
-#[derive(Debug, Serialize)]
+#[derive(Debug)]
 pub struct User {
   pub name: String,
   pub email: String,
