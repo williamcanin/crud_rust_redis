@@ -15,6 +15,7 @@ commands:
 	@echo     make test-read-user ----- Test reading an existing user
 	@echo     make test-update-user --- Testing an existing user update
 	@echo     make test-delete-user --- Testing the removal of an existing user
+	@echo     make test-utils --------- Tests all utils module
 	@echo     make build -------------- Compile code
 	@echo     make release ------------ Compile code for release
 	@echo     make run ---------------- Run program
@@ -46,6 +47,9 @@ test-update-user:
 
 test-delete-user:
 	@cargo test --color=always tests::user::delete -- --show-output
+
+test-utils:
+	@cargo test --color=always tests::utils::catch::url_password -- --show-output
 
 build:
 	@cargo build
