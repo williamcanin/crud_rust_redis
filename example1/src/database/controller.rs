@@ -1,5 +1,4 @@
 use super::models::ConnectionData;
-use crate::options::{DEVELOPMENT_URL, TLS};
 use redis::{Connection, RedisError, RedisResult};
 pub struct Database {
   conn: Option<Connection>,
@@ -8,26 +7,26 @@ pub struct Database {
 impl Database {
   /// Método para realizar a conexão com Redis.
   pub fn connection(data: ConnectionData) -> RedisResult<Self> {
-    let uri_schema = match TLS {
-      true => match data.development {
-        true => "redis",
-        false => "rediss",
+    let uri_schema = match data.tls {
+      true => match data.production {
+        true => "rediss",
+        false => "redis",
       },
       false => "redis",
     };
-    let url = match data.development {
-      true => DEVELOPMENT_URL.to_string(),
-      false => format!(
+    let url = match data.production {
+      true => format!(
         "{}://{}:{}@{}:{}/",
         uri_schema, data.username, data.password, data.hostname, data.port
       ),
+      false => data.development_url,
     };
 
     let client = redis::Client::open(url)?;
     let mut con = client.get_connection()?;
 
     // Autenticação
-    if !data.development {
+    if data.production {
       let _: () = redis::cmd("AUTH").arg(data.password).query(&mut con)?;
     }
 
