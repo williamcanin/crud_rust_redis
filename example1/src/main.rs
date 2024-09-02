@@ -3,10 +3,10 @@
 //
 
 mod database;
-mod errors;
 mod options;
 mod tests;
 mod users;
+mod utils;
 
 use crate::users::controller::Users;
 use crate::users::models::User;
@@ -44,13 +44,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
       println!("Usuário adicionado com ID: {}", id);
       user_id = ret;
     }
-    Err(e) => errors::handle_error(Box::new(e)),
+    Err(e) => utils::errors::handle_error(Box::new(e)),
   };
 
   // ------ Lendo o valor ------
   match redis_client.get(&user_id) {
     Ok(user) => println!("Usuário recuperado: {:?}", user),
-    Err(e) => errors::handle_error(Box::new(e)),
+    Err(e) => utils::errors::handle_error(Box::new(e)),
   };
 
   // ------ Atualizando o valor ------
@@ -63,18 +63,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
   };
   match redis_client.update(&user_id, &updated_user) {
     Ok(_) => println!("Usuário atualizado!"),
-    Err(e) => errors::handle_error(Box::new(e)),
+    Err(e) => utils::errors::handle_error(Box::new(e)),
   };
 
   match redis_client.get(&user_id) {
     Ok(user) => println!("Usuário atualizado recuperado: {:?}", user),
-    Err(e) => errors::handle_error(Box::new(e)),
+    Err(e) => utils::errors::handle_error(Box::new(e)),
   };
 
   // ------ Deletando o valor ------
   match redis_client.delete(&user_id) {
     Ok(_) => println!("Usuário ID {} deletado!", &user_id),
-    Err(e) => errors::handle_error(Box::new(e)),
+    Err(e) => utils::errors::handle_error(Box::new(e)),
   };
 
   Ok(())
