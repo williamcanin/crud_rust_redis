@@ -2,6 +2,7 @@
 // Recomenta-se usar o https://upstash.com para servidor remoto com Redis.
 //
 mod database;
+mod errors;
 mod options;
 mod tests;
 mod users;
@@ -9,7 +10,6 @@ mod users;
 use crate::users::controller::Users;
 use crate::users::models::User;
 use options::connection_data;
-use users::errors::handle_error;
 
 use std::error::Error;
 
@@ -43,13 +43,13 @@ async fn main() -> Result<(), Box<dyn Error>> {
       println!("Usuário adicionado com ID: {}", id);
       user_id = ret;
     }
-    Err(e) => handle_error(Box::new(e)),
+    Err(e) => errors::handle_error(Box::new(e)),
   };
 
   // ------ Lendo o valor ------
   match redis_client.get(&user_id) {
     Ok(user) => println!("Usuário recuperado: {:?}", user),
-    Err(e) => handle_error(Box::new(e)),
+    Err(e) => errors::handle_error(Box::new(e)),
   };
 
   // ------ Atualizando o valor ------
@@ -62,18 +62,18 @@ async fn main() -> Result<(), Box<dyn Error>> {
   };
   match redis_client.update(&user_id, &updated_user) {
     Ok(_) => println!("Usuário atualizado!"),
-    Err(e) => handle_error(Box::new(e)),
+    Err(e) => errors::handle_error(Box::new(e)),
   };
 
   match redis_client.get(&user_id) {
     Ok(user) => println!("Usuário atualizado recuperado: {:?}", user),
-    Err(e) => handle_error(Box::new(e)),
+    Err(e) => errors::handle_error(Box::new(e)),
   };
 
   // // ------ Deletando o valor ------
   // match redis_client.delete(&user_id) {
   //   Ok(_) => println!("Usuário ID {} deletado!", &user_id),
-  //   Err(e) => handle_error(Box::new(e)),
+  //   Err(e) => errors::handle_error(Box::new(e)),
   // };
 
   // ------ Fecha a conexão no final ------
