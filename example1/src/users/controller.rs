@@ -29,6 +29,13 @@ impl Users {
     Ok(Self { conn })
   }
 
+  // Fecha a conexão Redis
+  fn close(&mut self) -> RedisResult<()> {
+    // Chama o fechamento da conexão
+    self.conn.close()?;
+    Ok(())
+  }
+
   // Método para gerar ID para cada registro
   fn generate_id(&mut self, key_prefix: &str) -> RedisResult<String> {
     let key = format!("{}:id", key_prefix);
@@ -51,6 +58,9 @@ impl Users {
       .arg(user_fields)
       .query(self.conn.get_connection()?)?;
 
+    // Fecha a conexão
+    self.close()?;
+
     Ok(user_id)
   }
 
@@ -72,6 +82,9 @@ impl Users {
       values.insert(field.to_string(), value);
     }
 
+    // Fecha a conexão
+    self.close()?;
+
     // Retornar o usuário com os dados recuperados
     Ok(values)
   }
@@ -81,8 +94,13 @@ impl Users {
   pub fn delete(&mut self, key: &str) -> RedisResult<()> {
     // Estabelece conexão
     let con = self.conn.get_connection()?;
+
     // Envia comando ao Redis para deletar
     redis::cmd("DEL").arg(key).query(con)?;
+
+    // Fecha a conexão
+    self.close()?;
+
     Ok(())
   }
 
@@ -105,13 +123,9 @@ impl Users {
 
     cmd.query(con)?;
 
-    Ok(())
-  }
+    // Fecha a conexão
+    self.close()?;
 
-  // Fecha a conexão Redis
-  pub fn close(&mut self) -> RedisResult<()> {
-    // Chama o fechamento da conexão
-    self.conn.close()?;
     Ok(())
   }
 }
