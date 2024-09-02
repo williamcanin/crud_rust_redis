@@ -1,6 +1,7 @@
-use super::models::ConnectionData;
-use crate::database::Database;
-use crate::users::models::User;
+use crate::{
+  database::{controller::Database, models::ConnectionData},
+  users::models::User,
+};
 use redis::RedisResult;
 use std::collections::HashMap;
 
